@@ -38,13 +38,15 @@ class WidgetWindow {
             //print(player.User.Name + " (" + player.User.Login + " | " + (isSpectator) + ")");
         }
 
-        players.Sort(function(a,b) {
-            return a.Name.ToLower() < b.Name.ToLower();
-        });
+        if (players.Length > 0) {
+            players.Sort(function(a,b) {
+                return a.Name.ToLower() < b.Name.ToLower();
+            });
 
-        players.Sort(function(a, b) {
-            return !a.IsSpectator && b.IsSpectator ? true : false;
-        });
+            players.Sort(function(a, b) {
+                return !a.IsSpectator && b.IsSpectator ? true : false;
+            });
+        }
     }
 
     void SortPlayersByName() {
