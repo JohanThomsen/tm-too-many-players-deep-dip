@@ -152,9 +152,11 @@ class WidgetWindow {
             }
         }
 
-        effectivePlayers.Sort(function(a, b) {
-            return a.Distance < b.Distance;
-        });
+        if (effectivePlayers.Length > 0) {
+            effectivePlayers.Sort(function(a, b) {
+                return a.Distance < b.Distance;
+            });
+        }
     }
 
     void Render() {
