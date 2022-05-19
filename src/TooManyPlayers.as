@@ -5,16 +5,16 @@ bool Setting_Visible = false;
 bool Setting_OnlyInSpec = false;
 
 [Setting hidden]
-int Setting_Height = 285;
+float Setting_Height = 285;
 
 [Setting hidden]
-int Setting_Width = 200;
+float Setting_Width = 200;
 
 [Setting hidden]
-int Setting_PosX = 0;
+float Setting_PosX = 0;
 
 [Setting hidden]
-int Setting_PosY = 75;
+float Setting_PosY = 75;
 
 
 bool _joinedServer = false;
@@ -26,7 +26,7 @@ bool IsSpectating() {
 }
 
 void RenderMenu() {
-    if (UI::MenuItem("\\$f00" + Icons::Users + "\\$z Too Many Players", "", Setting_Visible)) {
+    if (UI::MenuItem("\\$f00" + Icons::DotCircleO + "\\$z Too Many Players", "", Setting_Visible)) {
         Setting_Visible = !Setting_Visible;
     }
 }
