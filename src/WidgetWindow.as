@@ -16,15 +16,10 @@ class Player {
 }
 
 class WidgetWindow {
-    bool _isOpen = false;
     bool _autoUpdate = true;
     string searchPattern = "";
     array<Player> players;
     array<Player> effectivePlayers;
-    
-    WidgetWindow() {
-        UpdatePlayers();
-    }
 
     void UpdatePlayers() {
         CGamePlayground@ playground = GetApp().CurrentPlayground;
@@ -157,21 +152,30 @@ class WidgetWindow {
             }
         }
 
-        effectivePlayers.Sort(function(a, b) {
-            return a.Distance < b.Distance;
-        });
+        if (effectivePlayers.Length > 0) {
+            effectivePlayers.Sort(function(a, b) {
+                return a.Distance < b.Distance;
+            });
+        }
     }
 
     void Render() {
-        if (!_isOpen) {
+        if (!Setting_Visible) {
             return;
         }
 
-        UI::SetNextWindowSize(200, 285, UI::Cond::Always);
-        UI::SetNextWindowPos(0, 75, UI::Cond::Always);
+        UI::SetNextWindowSize(200, 285, UI::Cond::FirstUseEver);
+        UI::SetNextWindowPos(0, 75, UI::Cond::FirstUseEver);
 
-        if (UI::Begin(" Too Many Players", _isOpen, UI::WindowFlags::NoCollapse | UI::WindowFlags::NoDocking)) {
-            
+        if (UI::Begin(Icons::Users +" Too Many Players", Setting_Visible, UI::WindowFlags::NoCollapse | UI::WindowFlags::NoDocking)) {
+            auto windowPos = UI::GetWindowPos();
+            auto windowSize = UI::GetWindowSize();
+
+            Setting_Width = windowSize.x;
+            Setting_Height = windowSize.y;
+            Setting_PosX = windowPos.x;
+            Setting_PosY = windowPos.y;
+
             UI::Text("Auto Update:");
             if (UI::BeginTable("controls", 2)) {
                 UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 0);
@@ -216,7 +220,7 @@ class WidgetWindow {
 
                     UI::TableNextColumn();
 
-                    if (!player.IsSpectator && UI::Button("##"+i)) {
+                    if (!player.IsSpectator && UI::Button(Icons::Eye + "##"+i)) {
                         SpectatePlayer(player.Login);
                     }
                 }

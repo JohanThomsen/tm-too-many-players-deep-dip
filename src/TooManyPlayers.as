@@ -1,22 +1,52 @@
+[Setting name="Visible" description="Show the widget while on a server."]
+bool Setting_Visible = false;
+
+[Setting name="Only In Spectator" description="Only show the widget while spectating."]
+bool Setting_OnlyInSpec = false;
+
+[Setting hidden]
+int Setting_Height = 285;
+
+[Setting hidden]
+int Setting_Width = 200;
+
+[Setting hidden]
+int Setting_PosX = 0;
+
+[Setting hidden]
+int Setting_PosY = 75;
+
+
+bool _joinedServer = false;
+
+bool IsSpectating() {
+    auto api = GetApp().CurrentPlayground.Interface.ManialinkScriptHandler;
+
+    return api.IsSpectator || api.IsSpectatorClient;
+}
+
 void RenderMenu() {
-    if (UI::MenuItem(" Too Many Players", "", widgetWindow._isOpen)) {
-        widgetWindow._isOpen = !widgetWindow._isOpen;
+    if (UI::MenuItem("\\$f00" + Icons::Users + "\\$z Too Many Players", "", Setting_Visible)) {
+        Setting_Visible = !Setting_Visible;
     }
 }
 
 void Render() {
     auto app = GetApp();
 
-    if (app.CurrentPlayground !is null) {
+    if (app.CurrentPlayground !is null && app.Network.IsMultiInternet) {
+        if (Setting_OnlyInSpec && !IsSpectating()) return;
+
         widgetWindow.Render();
+
+        if (!_joinedServer) {
+            widgetWindow.UpdatePlayers();
+        }
+
+        _joinedServer = true;
+    } else {
+        _joinedServer = false;
     }
 }
 
-void Main() {
-    
-
-    /* for (int i = 0; i < pg.Players.Length; i++) {
-        CGamePlayer@ player = pg.Players[i];
-        print(player.User.Name);
-    } */
-}
+void Main() {}
