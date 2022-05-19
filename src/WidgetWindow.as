@@ -35,7 +35,6 @@ class WidgetWindow {
 
             bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher;
             players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i));
-            //print(player.User.Name + " (" + player.User.Login + " | " + (isSpectator) + ")");
         }
 
         if (players.Length > 0) {
@@ -49,31 +48,6 @@ class WidgetWindow {
         }
     }
 
-    void SortPlayersByName() {
-        int j;
-        for (int i = 1; i < int(players.Length); i++) {
-            Player k = players[i];
-            j = i-1;
-
-            string a(players[j].Name);
-            string b(k.Name);
-
-            while (j >= 0 && a.ToLower() > b.ToLower()) {
-                //players[j+1] = players[j];
-                print("n=" + players.Length + " | " + "i=" + i + " | " + a + " > " + b + " = " + (a > b));
-                players.RemoveAt(j+1);
-                players.InsertAt(j+1, players[j]);
-                j--;
-            }
-
-            print("n=" + players.Length + " | " + "i=" + i + " | " + a + " > " + b + " = " + (a > b));
-
-            players.RemoveAt(j+1);
-            players.InsertAt(j+1, k);
-            //players[j+1] = k;
-        }
-    }
-
     void SpectatePlayer(string&in login) {
         CGamePlayground@ playground = GetApp().CurrentPlayground;
         CGamePlaygroundClientScriptAPI@ api = GetApp().CurrentPlayground.Interface.ManialinkScriptHandler.Playground;
@@ -83,47 +57,6 @@ class WidgetWindow {
         }
 
         api.SetSpectateTarget(login);
-    }
-
-    string TrimStringLeft(string&in str) {
-        string trimmed = "";
-        bool add = false;
-        int addi = 0;
-
-        for (int i = 0; i < str.Length; i++) {
-            if (str[i] != 32) {
-                add = true;
-            }
-
-            if (add) {
-                trimmed += " ";
-                trimmed[addi++] = str[i];
-            }
-        }
-
-        return trimmed;
-    }
-
-    string TrimStringRight(string&in str) {
-        string trimmed = "";
-        bool add = false;
-
-        for (int i = str.Length-1; i >= 0; i--) {
-            if (str[i] != 32) {
-                add = true;
-            }
-
-            if (add) {
-                trimmed = " " + trimmed;
-                trimmed[0] = str[i];
-            }
-        }
-
-        return trimmed;
-    }
-
-    string TrimString(string&in str) {
-        return TrimStringRight(TrimStringLeft(str));
     }
 
     void SetEffectivePlayerList() {
@@ -144,11 +77,11 @@ class WidgetWindow {
         }
 
         // find best matches
-        for (int i = 0; i < players.Length; i++) {
+        for (uint i = 0; i < players.Length; i++) {
             players[i].Distance = players[i].Name.ToLower().IndexOf(searchPattern.ToLower());
         }
 
-        for (int i = 0; i < players.Length; i++) {
+        for (uint i = 0; i < players.Length; i++) {
             if (players[i].Distance >= 0) {
                 effectivePlayers.InsertLast(players[i]);
             }
@@ -189,7 +122,10 @@ class WidgetWindow {
                 _autoUpdate = UI::Checkbox("", _autoUpdate);
 
                 UI::TableNextColumn();
-                if (!_autoUpdate && UI::Button("Update Now")) {
+
+                if (_autoUpdate) {
+                    UpdatePlayers();
+                } else if (UI::Button("Update Now")) {
                     UpdatePlayers();
                 }
 
