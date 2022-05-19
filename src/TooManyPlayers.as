@@ -1,3 +1,5 @@
+bool _joinedServer = false;
+
 void RenderMenu() {
     if (UI::MenuItem(" Too Many Players", "", widgetWindow._isOpen)) {
         widgetWindow._isOpen = !widgetWindow._isOpen;
@@ -9,14 +11,17 @@ void Render() {
 
     if (app.CurrentPlayground !is null) {
         widgetWindow.Render();
+
+        if (!_joinedServer) {
+            widgetWindow.UpdatePlayers();
+        }
+
+        _joinedServer = true;
+    } else {
+        _joinedServer = false;
     }
 }
 
 void Main() {
     
-
-    /* for (int i = 0; i < pg.Players.Length; i++) {
-        CGamePlayer@ player = pg.Players[i];
-        print(player.User.Name);
-    } */
 }

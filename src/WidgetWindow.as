@@ -21,10 +21,6 @@ class WidgetWindow {
     string searchPattern = "";
     array<Player> players;
     array<Player> effectivePlayers;
-    
-    WidgetWindow() {
-        UpdatePlayers();
-    }
 
     void UpdatePlayers() {
         CGamePlayground@ playground = GetApp().CurrentPlayground;
