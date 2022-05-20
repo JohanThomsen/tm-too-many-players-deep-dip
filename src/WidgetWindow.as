@@ -16,8 +16,7 @@ class Player {
 }
 
 class WidgetWindow {
-    bool _autoUpdate = true;
-    string searchPattern = "";
+    private string _searchPattern = "";
     array<Player> players;
     array<Player> effectivePlayers;
 
@@ -60,15 +59,15 @@ class WidgetWindow {
     }
 
     void SetEffectivePlayerList() {
-        string newPattern = UI::InputText("Search", searchPattern);
+        string newPattern = UI::InputText("Search", _searchPattern);
 
-        if (newPattern != searchPattern) {
-            searchPattern = TrimString(newPattern);
+        if (newPattern != _searchPattern) {
+            _searchPattern = TrimString(newPattern);
         }
 
         effectivePlayers.RemoveRange(0, effectivePlayers.Length);
 
-        if (searchPattern == "") {
+        if (_searchPattern == "") {
             for (uint i = 0; i < players.Length; i++) {
                 effectivePlayers.InsertLast(players[i]);
             }
@@ -78,7 +77,7 @@ class WidgetWindow {
 
         // find best matches
         for (uint i = 0; i < players.Length; i++) {
-            players[i].Distance = players[i].Name.ToLower().IndexOf(searchPattern.ToLower());
+            players[i].Distance = players[i].Name.ToLower().IndexOf(_searchPattern.ToLower());
         }
 
         for (uint i = 0; i < players.Length; i++) {
@@ -124,11 +123,11 @@ class WidgetWindow {
                 UI::TableNextRow();
 
                 UI::TableNextColumn();
-                _autoUpdate = UI::Checkbox("", _autoUpdate);
+                Setting_AutoUpdate = UI::Checkbox("", Setting_AutoUpdate);
 
                 UI::TableNextColumn();
 
-                if (_autoUpdate || UI::IsWindowAppearing()) {
+                if (Setting_AutoUpdate || UI::IsWindowAppearing()) {
                     UpdatePlayers();
                 } else if (UI::Button("Update Now")) {
                     UpdatePlayers();

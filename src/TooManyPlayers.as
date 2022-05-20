@@ -16,6 +16,8 @@ float Setting_PosX = 0;
 [Setting hidden]
 float Setting_PosY = 75;
 
+[Setting hidden]
+bool Setting_AutoUpdate = true;
 
 bool _joinedServer = false;
 
