@@ -98,6 +98,8 @@ class WidgetWindow {
             return;
         }
 
+        print(UI::CurrentActionMap());
+
         UI::SetNextWindowSize(200, 285, UI::Cond::FirstUseEver);
         UI::SetNextWindowPos(0, 75, UI::Cond::FirstUseEver);
 

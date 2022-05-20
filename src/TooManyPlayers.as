@@ -1,7 +1,7 @@
-[Setting name="Visible" description="Show the widget while on a server."]
+[Setting name="Visible" description="Show the widget while on a server." category="General"]
 bool Setting_Visible = false;
 
-[Setting name="Only In Spectator" description="Only show the widget while spectating."]
+[Setting name="Only In Spectator" description="Only show the widget while spectating." category="General"]
 bool Setting_OnlyInSpec = false;
 
 [Setting hidden]
@@ -18,6 +18,9 @@ float Setting_PosY = 75;
 
 [Setting hidden]
 bool Setting_AutoUpdate = true;
+
+[Setting name="Favorite Players" category="General"]
+array<string> Setting_FavoritePlayers;
 
 bool _joinedServer = false;
 
