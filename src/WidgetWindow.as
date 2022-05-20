@@ -102,7 +102,12 @@ class WidgetWindow {
         UI::SetNextWindowSize(200, 285, UI::Cond::FirstUseEver);
         UI::SetNextWindowPos(0, 75, UI::Cond::FirstUseEver);
 
-        if (UI::Begin(Icons::Users +" Too Many Players", Setting_Visible, UI::WindowFlags::NoCollapse | UI::WindowFlags::NoDocking)) {
+        auto flags =  UI::WindowFlags::NoFocusOnAppearing 
+                    | UI::WindowFlags::NoCollapse
+                    | UI::WindowFlags::NoDocking 
+                    | UI::WindowFlags::NoTitleBar;
+
+        if (UI::Begin(Icons::Users +" Too Many Players", Setting_Visible, flags)) {
             auto windowPos = UI::GetWindowPos();
             auto windowSize = UI::GetWindowSize();
 
@@ -123,7 +128,7 @@ class WidgetWindow {
 
                 UI::TableNextColumn();
 
-                if (_autoUpdate) {
+                if (_autoUpdate || UI::IsWindowAppearing()) {
                     UpdatePlayers();
                 } else if (UI::Button("Update Now")) {
                     UpdatePlayers();

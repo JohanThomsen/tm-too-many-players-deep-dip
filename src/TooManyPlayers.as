@@ -38,14 +38,6 @@ void Render() {
         if (Setting_OnlyInSpec && !IsSpectating()) return;
 
         widgetWindow.Render();
-
-        if (!_joinedServer) {
-            widgetWindow.UpdatePlayers();
-        }
-
-        _joinedServer = true;
-    } else {
-        _joinedServer = false;
     }
 }
 
