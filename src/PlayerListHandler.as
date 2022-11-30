@@ -54,7 +54,7 @@ class PlayerListHandler {
             });
 
             _players.Sort(function(a, b) {
-                return !a.IsFavorited && b.IsFavorited ? false : true;
+                return !a.IsFavorited && b.IsFavorited || a.IsFavorited == b.IsFavorited ? false : true;
             });
         }
     }

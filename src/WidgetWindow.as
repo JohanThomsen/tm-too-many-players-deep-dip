@@ -237,7 +237,7 @@ class WidgetWindow {
 
                 UI::TableNextColumn();
 
-                UI::SetCursorPos(vec2(UI::GetWindowSize().x-40, UI::GetCursorPos().y-1));
+                UI::SetCursorPos(vec2(UI::GetWindowSize().x - (UI::GetScrollMaxY() > 0 ? 40 : 24), UI::GetCursorPos().y-1));
                 UI::PushStyleColor(UI::Col::Button, vec4(0, 0, 0, 0));
                 UI::PushStyleColor(UI::Col::ButtonHovered, vec4(1, 1, 1, 0.01));
                 UI::PushStyleColor(UI::Col::ButtonActive, vec4(1, 1, 1, 0.01));
