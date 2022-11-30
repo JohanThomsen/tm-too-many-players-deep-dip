@@ -38,3 +38,7 @@ string TrimStringRight(string&in str) {
 string TrimString(string&in str) {
     return TrimStringRight(TrimStringLeft(str));
 }
+
+bool IsTeamsMode() {
+    return GetApp().Network.ClientManiaAppPlayground.ManiaPlanet.CurrentServerModeName == "TM_Teams_Online";
+}

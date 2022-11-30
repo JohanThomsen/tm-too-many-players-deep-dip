@@ -170,6 +170,12 @@ class WidgetWindow {
 
             UI::Separator();
 
+            if (UI::MenuItem("Team Colors", "", Setting_UseTeamColors)) {
+                Setting_UseTeamColors = !Setting_UseTeamColors;
+            }
+
+            UI::Separator();
+
             if (UI::MenuItem("Lock Position", "", Setting_LockPosition)) {
                 Setting_LockPosition = !Setting_LockPosition;
             }
@@ -201,7 +207,23 @@ class WidgetWindow {
 
                 UI::TableNextColumn();
 
-                UI::PushStyleColor(UI::Col::Text, vec4(1, 1, 1, player.IsSpectator ? 0.1 : 0.5));
+                vec3 nameTextColor;
+
+                if (Setting_UseTeamColors && IsTeamsMode()) {
+                    nameTextColor = vec3(
+                        player.Team == 1 ? 1 : 0.3,
+                        0.3,
+                        player.Team == 2 ? 1 : 0.3);
+                } else {
+                    nameTextColor = vec3(1, 1, 1);
+                }
+
+                UI::PushStyleColor(UI::Col::Text, vec4(
+                    nameTextColor.x,
+                    nameTextColor.y,
+                    nameTextColor.z,
+                    player.IsSpectator ? 0.1 : 0.5
+                ));
 
                 if (UI::MenuItem(player.Name) && !player.IsSpectator) {
                     _playerList.Spectate(player.Login);

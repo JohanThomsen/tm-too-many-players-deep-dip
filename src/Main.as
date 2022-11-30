@@ -13,6 +13,9 @@ bool Setting_LockPosition = false;
 [Setting name="Ignore Spectators" category=" Players" description="Don't show players that are in spectator mode."]
 bool Setting_IgnoreSpectators = true;
 
+[Setting name="Use Team Colors" category=" Players" description="When in teams mode, give players the color of their team."]
+bool Setting_UseTeamColors = true;
+
 [Setting hidden]
 float Setting_Height = 285;
 

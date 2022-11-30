@@ -5,15 +5,17 @@ class Player {
     int Index;
     int Distance;
     bool IsFavorited;
+    int Team;
 
     Player(){}
 
-    Player(string name, string login, bool isSpectator, int index, bool isFavorited) {
+    Player(string name, string login, bool isSpectator, int index, bool isFavorited, int team) {
         Name = name;
         Login = login;
         IsSpectator = isSpectator;
         Index = index;
         IsFavorited = isFavorited;
+        Team = team;
     }
 }
 
@@ -28,7 +30,7 @@ class PlayerListHandler {
         _players.RemoveRange(0, _players.Length);
 
         for (uint i = 0; i < playground.Players.Length; i++) {
-            auto player = playground.Players[i];
+            auto player = cast<CSmPlayer@>(playground.Players[i]);
             // ignore local user
             if (playground.Interface.ManialinkScriptHandler.LocalUser.Login == player.User.Login) {
                 continue;
@@ -38,8 +40,8 @@ class PlayerListHandler {
                             || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher;
             
             bool isFavorited = _favorites.Find(player.User.Login) >= 0;
-
-            _players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i, isFavorited));
+            
+            _players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i, isFavorited, player.EdClan));
         }
 
         if (_players.Length > 0) {
