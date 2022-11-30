@@ -18,84 +18,11 @@ class Player {
 class WidgetWindow {
     bool _autoUpdate = true;
     string searchPattern = "";
-    array<Player> players;
-    array<Player> effectivePlayers;
     float _effectiveHeight = Setting_Height;
     bool _firstHover = true;
     uint64 _lastHover = 0;
-
-    void UpdatePlayers() {
-        CGamePlayground@ playground = GetApp().CurrentPlayground;
-
-        players.RemoveRange(0, players.Length);
-
-        for (uint i = 0; i < playground.Players.Length; i++) {
-            auto player = playground.Players[i];
-            // ignore local user
-            if (playground.Interface.ManialinkScriptHandler.LocalUser.Login == player.User.Login) {
-                continue;
-            }
-
-            bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher;
-            players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i));
-        }
-
-        if (players.Length > 0) {
-            players.Sort(function(a,b) {
-                return a.Name.ToLower() < b.Name.ToLower();
-            });
-
-            players.Sort(function(a, b) {
-                return !a.IsSpectator && b.IsSpectator ? true : false;
-            });
-        }
-    }
-
-    void SpectatePlayer(string&in login) {
-        CGamePlayground@ playground = GetApp().CurrentPlayground;
-        CGamePlaygroundClientScriptAPI@ api = GetApp().CurrentPlayground.Interface.ManialinkScriptHandler.Playground;
-
-        if (!api.IsSpectator) {
-            api.RequestSpectatorClient(true);
-        }
-
-        api.SetSpectateTarget(login);
-    }
-
-    void SetEffectivePlayerList() {
-        string newPattern = UI::InputText("Search", searchPattern);
-
-        if (newPattern != searchPattern) {
-            searchPattern = TrimString(newPattern);
-        }
-
-        effectivePlayers.RemoveRange(0, effectivePlayers.Length);
-
-        if (searchPattern == "") {
-            for (uint i = 0; i < players.Length; i++) {
-                effectivePlayers.InsertLast(players[i]);
-            }
-
-            return;
-        }
-
-        // find best matches
-        for (uint i = 0; i < players.Length; i++) {
-            players[i].Distance = players[i].Name.ToLower().IndexOf(searchPattern.ToLower());
-        }
-
-        for (uint i = 0; i < players.Length; i++) {
-            if (players[i].Distance >= 0) {
-                effectivePlayers.InsertLast(players[i]);
-            }
-        }
-
-        if (effectivePlayers.Length > 0) {
-            effectivePlayers.Sort(function(a, b) {
-                return a.Distance < b.Distance;
-            });
-        }
-    }
+    PlayerListHandler _playerList;
+    bool _minimized = false;
 
     bool IsHoveringWindow() {
         vec2 winPos = UI::GetWindowPos();
@@ -134,7 +61,7 @@ class WidgetWindow {
 
                 _firstHover = false;
             } else {
-                _effectiveHeight = 0;
+                _effectiveHeight = 40;
                 _firstHover = true;
             }
         } else {
@@ -157,18 +84,28 @@ class WidgetWindow {
                           | UI::WindowFlags::NoDocking
                           | UI::WindowFlags::NoTitleBar;
 
+        if (_minimized) {
+            windowFlags |= UI::WindowFlags::NoResize;
+        }
+
         if (UI::Begin(Icons::Users + " Too Many Players", Setting_Visible, windowFlags)) {
             bool isMouseHovering = IsHoveringWindow();
+            _minimized = Setting_MinimizeWhenNotHovering && !isMouseHovering;
+
             SetWindowSizes(isMouseHovering);
 
-            if (Setting_MinimizeWhenNotHovering && !isMouseHovering) {
+            AddOptionsMenu();
+
+            if (_minimized) {
                 RenderMinimized();
+                UI::SetCursorPos(vec2(0, 8));
+                RenderOptionsButton();
             } else {
                 RenderWindowControls();
 
                 UI::Separator();
 
-                SetEffectivePlayerList();
+                RenderSearch();
                 RenderPlayersTable();
             }
         }
@@ -176,32 +113,75 @@ class WidgetWindow {
         UI::End();
     }
 
+    void RenderSearch() {
+        auto newPattern = UI::InputText("Search", searchPattern);
+
+        if (newPattern != searchPattern) {
+            searchPattern = TrimString(newPattern);
+        }
+
+        _playerList.SetSearchPattern(searchPattern);
+    }
+
     void RenderMinimized() {
+        UI::SetCursorPos(vec2(10, 12));
         UI::Text(Icons::Users + " Too Many Players");
     }
 
     void RenderWindowControls() {
-        if (UI::BeginTable("controls", 2)) {
-            UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthFixed, 0);
-            UI::TableSetupColumn("Actions", UI::TableColumnFlags::WidthFixed, 0);
+        _autoUpdate = UI::Checkbox("", _autoUpdate);
 
-            UI::TableNextRow();
+        Tooltip("Auto-Update");
 
-            UI::TableNextColumn();
-            _autoUpdate = UI::Checkbox("", _autoUpdate);
-
-            UI::TableNextColumn();
-
-            if (_autoUpdate) {
-                UI::Text("Auto Update");
-                UpdatePlayers();
-            } else {
-                if (UI::Button(Icons::Refresh)) {
-                    UpdatePlayers();
-                }
+        if (_autoUpdate) {
+            _playerList.Update();
+        } else {
+            UI::SameLine();
+            if (UI::Button(Icons::Refresh)) {
+                _playerList.Update();
             }
 
-            UI::EndTable();
+            Tooltip("Update Now");
+        }
+
+        UI::SameLine();
+        RenderOptionsButton();
+    }
+
+    void RenderOptionsButton() {
+        UI::SetCursorPos(vec2(UI::GetWindowSize().x - 40, UI::GetCursorPos().y));
+        UI::PushStyleColor(UI::Col::Button, vec4(0, 0, 0, 0));
+        UI::PushStyleColor(UI::Col::ButtonHovered, vec4(1, 1, 1, 0.02));
+        UI::PushStyleColor(UI::Col::ButtonActive, vec4(1, 1, 1, 0.03));
+        UI::PushStyleVar(UI::StyleVar::FrameRounding, 0);
+        if (UI::Button(Icons::Cog)) {
+            UI::OpenPopup("OptionsMenu");
+        }
+
+        UI::PopStyleVar();
+        UI::PopStyleColor(3);
+
+        Tooltip("Options");
+    }
+
+    void AddOptionsMenu() {
+        if (UI::BeginPopup("OptionsMenu", UI::WindowFlags::NoMove)) {
+            
+            UI::PushFont(fontBold);
+            UI::Text("Options");
+            UI::PopFont();
+
+            UI::Separator();
+
+            if (UI::MenuItem("Auto-Minimize", "", Setting_MinimizeWhenNotHovering)) {
+                Setting_MinimizeWhenNotHovering = !Setting_MinimizeWhenNotHovering;
+            }
+
+            if (UI::MenuItem("Ignore Spectators", "", Setting_IgnoreSpectators)) {
+                Setting_IgnoreSpectators = !Setting_IgnoreSpectators;
+            }
+
+            UI::EndPopup();
         }
     }
 
@@ -212,10 +192,15 @@ class WidgetWindow {
             UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthStretch);
             UI::TableSetupColumn("Actions", UI::TableColumnFlags::WidthFixed, 0);
 
-            for (uint i = 0; i < effectivePlayers.Length; i++) {
-                Player player = effectivePlayers[i];
+            auto players = _playerList.GetPlayerList();
+            for (uint i = 0; i < players.Length; i++) {
+                Player player = players[i];
 
                 if (player is null) {
+                    continue;
+                }
+
+                if (Setting_IgnoreSpectators && player.IsSpectator) {
                     continue;
                 }
 
@@ -227,14 +212,24 @@ class WidgetWindow {
                 UI::TableNextColumn();
 
                 if (!player.IsSpectator && UI::Button(Icons::Eye + "##"+i)) {
-                    SpectatePlayer(player.Login);
+                    _playerList.Spectate(player.Login);
                 }
+
+                Tooltip("Spectate " + player.Name);
             }
 
             UI::EndTable();
         }
 
         UI::EndChild();
+    }
+
+    void Tooltip(string text) {
+        if (UI::IsItemHovered()) {
+            UI::BeginTooltip();
+            UI::Text(text);
+            UI::EndTooltip();
+        }
     }
 }
 
