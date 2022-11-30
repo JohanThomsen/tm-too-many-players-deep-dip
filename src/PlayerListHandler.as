@@ -37,8 +37,13 @@ class PlayerListHandler {
             }
 
             bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher 
-                            || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher;
+                            || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher
+                            || (IsKnockoutDaily() && player.SpawnIndex < 0);
             
+            if (player.User.Name == "snixtho") {
+                print(player.User.SpectatorMode);
+            }
+
             bool isFavorited = _favorites.Find(player.User.Login) >= 0;
             
             _players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i, isFavorited, player.EdClan));
@@ -93,7 +98,7 @@ class PlayerListHandler {
         CGamePlayground@ playground = GetApp().CurrentPlayground;
         CGamePlaygroundClientScriptAPI@ api = GetApp().CurrentPlayground.Interface.ManialinkScriptHandler.Playground;
 
-        if (!api.IsSpectator) {
+        if (!IsKnockoutDaily() && !api.IsSpectator) {
             api.RequestSpectatorClient(true);
         }
 

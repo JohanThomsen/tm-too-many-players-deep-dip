@@ -42,3 +42,7 @@ string TrimString(string&in str) {
 bool IsTeamsMode() {
     return GetApp().Network.ClientManiaAppPlayground.ManiaPlanet.CurrentServerModeName == "TM_Teams_Online";
 }
+
+bool IsKnockoutDaily() {
+    return GetApp().Network.ClientManiaAppPlayground.ManiaPlanet.CurrentServerModeName == "TM_KnockoutDaily_Online";
+}
