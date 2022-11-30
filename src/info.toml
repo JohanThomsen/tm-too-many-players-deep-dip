@@ -1,8 +1,8 @@
 [meta]
 name        = "Too Many Players"
 author      = "snixtho"
-category    = "Spectating"
-version     = "1.0"
+category    = "Utilities"
+version     = "2.0"
 
 [script]
 imports = [ "Icons.as" ]

@@ -38,3 +38,11 @@ string TrimStringRight(string&in str) {
 string TrimString(string&in str) {
     return TrimStringRight(TrimStringLeft(str));
 }
+
+bool IsTeamsMode() {
+    return GetApp().Network.ClientManiaAppPlayground.ManiaPlanet.CurrentServerModeName == "TM_Teams_Online";
+}
+
+bool IsKnockoutDaily() {
+    return GetApp().Network.ClientManiaAppPlayground.ManiaPlanet.CurrentServerModeName == "TM_KnockoutDaily_Online";
+}
