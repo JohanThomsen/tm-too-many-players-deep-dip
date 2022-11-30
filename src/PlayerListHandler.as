@@ -1,6 +1,26 @@
+class Player {
+    string Name;
+    string Login;
+    bool IsSpectator;
+    int Index;
+    int Distance;
+    bool IsFavorited;
+
+    Player(){}
+
+    Player(string name, string login, bool isSpectator, int index, bool isFavorited) {
+        Name = name;
+        Login = login;
+        IsSpectator = isSpectator;
+        Index = index;
+        IsFavorited = isFavorited;
+    }
+}
+
 class PlayerListHandler {
     array<Player> _players;
     string _searchPattern;
+    array<string> _favorites;
 
     void Update() {
         CGamePlayground@ playground = GetApp().CurrentPlayground;
@@ -14,8 +34,12 @@ class PlayerListHandler {
                 continue;
             }
 
-            bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher;
-            _players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i));
+            bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher 
+                            || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher;
+            
+            bool isFavorited = _favorites.Find(player.User.Login) >= 0;
+
+            _players.InsertLast(Player(player.User.Name, player.User.Login, isSpectator, i, isFavorited));
         }
 
         if (_players.Length > 0) {
@@ -25,6 +49,10 @@ class PlayerListHandler {
 
             _players.Sort(function(a, b) {
                 return !a.IsSpectator && b.IsSpectator ? true : false;
+            });
+
+            _players.Sort(function(a, b) {
+                return !a.IsFavorited && b.IsFavorited ? false : true;
             });
         }
     }
@@ -68,5 +96,14 @@ class PlayerListHandler {
         }
 
         api.SetSpectateTarget(login);
+    }
+
+    void ToggleFavorite(string&in login) {
+        auto i = _favorites.Find(login);
+        if (i >= 0) {
+            _favorites.RemoveAt(i);
+        } else {
+            _favorites.InsertLast(login);
+        }
     }
 }

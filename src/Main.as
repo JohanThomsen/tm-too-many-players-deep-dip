@@ -7,11 +7,11 @@ bool Setting_OnlyInSpec = false;
 [Setting name="Minimize When Not Hovering" category=" Window" description="Minimize the window when the mouse is not hovering the window."]
 bool Setting_MinimizeWhenNotHovering = false;
 
+[Setting name="Lock Position" category=" Window" description="Disable the ability to move the window and lock it in place."]
+bool Setting_LockPosition = false;
+
 [Setting name="Ignore Spectators" category=" Players" description="Don't show players that are in spectator mode."]
 bool Setting_IgnoreSpectators = true;
-
-[Setting name="Pin Most Spectated" category=" Favorites" description="Keep the most spectated players at the top of the list."]
-bool Setting_PinMostSpectated = false;
 
 [Setting hidden]
 float Setting_Height = 285;
@@ -49,10 +49,6 @@ void Render() {
         if (Setting_OnlyInSpec && !IsSpectating()) return;
 
         widgetWindow.Render();
-
-        /* if (!_joinedServer) {
-            widgetWindow.UpdatePlayers();
-        } */
 
         _joinedServer = true;
     } else {

@@ -1,20 +1,3 @@
-class Player {
-    string Name;
-    string Login;
-    bool IsSpectator;
-    int Index;
-    int Distance;
-
-    Player(){}
-
-    Player(string name, string login, bool isSpectator, int index) {
-        Name = name;
-        Login = login;
-        IsSpectator = isSpectator;
-        Index = index;
-    }
-}
-
 class WidgetWindow {
     bool _autoUpdate = true;
     string searchPattern = "";
@@ -88,6 +71,10 @@ class WidgetWindow {
             windowFlags |= UI::WindowFlags::NoResize;
         }
 
+        if (Setting_LockPosition) {
+            windowFlags |= UI::WindowFlags::NoMove;
+        }
+
         if (UI::Begin(Icons::Users + " Too Many Players", Setting_Visible, windowFlags)) {
             bool isMouseHovering = IsHoveringWindow();
             _minimized = Setting_MinimizeWhenNotHovering && !isMouseHovering;
@@ -125,7 +112,7 @@ class WidgetWindow {
 
     void RenderMinimized() {
         UI::SetCursorPos(vec2(10, 12));
-        UI::Text(Icons::Users + " Too Many Players");
+        UI::Text(Icons::Users + " Players");
     }
 
     void RenderWindowControls() {
@@ -181,6 +168,12 @@ class WidgetWindow {
                 Setting_IgnoreSpectators = !Setting_IgnoreSpectators;
             }
 
+            UI::Separator();
+
+            if (UI::MenuItem("Lock Position", "", Setting_LockPosition)) {
+                Setting_LockPosition = !Setting_LockPosition;
+            }
+
             UI::EndPopup();
         }
     }
@@ -190,7 +183,7 @@ class WidgetWindow {
 
         if (UI::BeginTable("players", 2)) {
             UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthStretch);
-            UI::TableSetupColumn("Actions", UI::TableColumnFlags::WidthFixed, 0);
+            UI::TableSetupColumn("Actions", UI::TableColumnFlags::WidthFixed, 14);
 
             auto players = _playerList.GetPlayerList();
             for (uint i = 0; i < players.Length; i++) {
@@ -207,15 +200,36 @@ class WidgetWindow {
                 UI::TableNextRow();
 
                 UI::TableNextColumn();
-                UI::Text(player.Name);
 
-                UI::TableNextColumn();
+                UI::PushStyleColor(UI::Col::Text, vec4(1, 1, 1, player.IsSpectator ? 0.1 : 0.5));
 
-                if (!player.IsSpectator && UI::Button(Icons::Eye + "##"+i)) {
+                if (UI::MenuItem(player.Name) && !player.IsSpectator) {
                     _playerList.Spectate(player.Login);
                 }
 
-                Tooltip("Spectate " + player.Name);
+                UI::PopStyleColor();
+
+                if (!player.IsSpectator) {
+                    Tooltip("Spectate " + player.Name);
+                }
+
+                UI::TableNextColumn();
+
+                UI::SetCursorPos(vec2(UI::GetWindowSize().x-40, UI::GetCursorPos().y-1));
+                UI::PushStyleColor(UI::Col::Button, vec4(0, 0, 0, 0));
+                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(1, 1, 1, 0.01));
+                UI::PushStyleColor(UI::Col::ButtonActive, vec4(1, 1, 1, 0.01));
+                UI::PushStyleVar(UI::StyleVar::FrameRounding, 0);
+
+                if (UI::Button((player.IsFavorited ? Icons::Star : Icons::StarO) + "##"+i, vec2(24, 19))) {
+                    _playerList.ToggleFavorite(player.Login);
+                    if (!_autoUpdate) _playerList.Update();
+                }
+
+                Tooltip("Favorite " + player.Name);
+
+                UI::PopStyleVar();
+                UI::PopStyleColor(3);
             }
 
             UI::EndTable();
