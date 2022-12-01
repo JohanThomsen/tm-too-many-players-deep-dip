@@ -39,10 +39,6 @@ class PlayerListHandler {
             bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher 
                             || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher
                             || (IsKnockoutDaily() && player.SpawnIndex < 0);
-            
-            if (player.User.Name == "snixtho") {
-                print(player.User.SpectatorMode);
-            }
 
             bool isFavorited = _favorites.Find(player.User.Login) >= 0;
             
