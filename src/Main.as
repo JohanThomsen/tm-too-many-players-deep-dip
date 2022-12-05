@@ -10,6 +10,9 @@ bool Setting_MinimizeWhenNotHovering = false;
 [Setting name="Lock Position" category=" Window" description="Disable the ability to move the window and lock it in place."]
 bool Setting_LockPosition = false;
 
+[Setting name="Enable Favorites" category=" Window" description="Enable the ability to favorite players and pin them to the top of the list."]
+bool Setting_EnableFavorites = true;
+
 [Setting name="Ignore Spectators" category=" Players" description="Don't show players that are in spectator mode."]
 bool Setting_IgnoreSpectators = true;
 
