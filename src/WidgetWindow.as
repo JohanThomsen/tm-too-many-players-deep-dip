@@ -168,6 +168,10 @@ class WidgetWindow {
                 Setting_IgnoreSpectators = !Setting_IgnoreSpectators;
             }
 
+            if (UI::MenuItem("Enable Favorites", "", Setting_EnableFavorites)) {
+                Setting_EnableFavorites = !Setting_EnableFavorites;
+            }
+
             UI::Separator();
 
             if (UI::MenuItem("Team Colors", "", Setting_UseTeamColors)) {
@@ -187,6 +191,33 @@ class WidgetWindow {
     void RenderPlayersTable() {
         UI::BeginChild("playerlist");
 
+        if (Setting_EnableFavorites) {
+            RenderPlayersList();
+        } else {
+            RenderPlayersListSimple();
+        }
+
+        UI::EndChild();
+    }
+
+    void RenderPlayersListSimple() {
+        auto players = _playerList.GetPlayerList();
+        for (uint i = 0; i < players.Length; i++) {
+            Player player = players[i];
+
+            if (player is null) {
+                continue;
+            }
+
+            if (Setting_IgnoreSpectators && player.IsSpectator) {
+                continue;
+            }
+
+            RenderPlayer(player);
+        }
+    }
+
+    void RenderPlayersList() {
         if (UI::BeginTable("players", 2)) {
             UI::TableSetupColumn("Name", UI::TableColumnFlags::WidthStretch);
             UI::TableSetupColumn("Actions", UI::TableColumnFlags::WidthFixed, 14);
@@ -207,57 +238,62 @@ class WidgetWindow {
 
                 UI::TableNextColumn();
 
-                vec3 nameTextColor;
-
-                if (Setting_UseTeamColors && IsTeamsMode()) {
-                    nameTextColor = vec3(
-                        player.Team == 1 ? 1 : 0.3,
-                        0.3,
-                        player.Team == 2 ? 1 : 0.3);
-                } else {
-                    nameTextColor = vec3(1, 1, 1);
-                }
-
-                UI::PushStyleColor(UI::Col::Text, vec4(
-                    nameTextColor.x,
-                    nameTextColor.y,
-                    nameTextColor.z,
-                    player.IsSpectator ? 0.1 : 0.5
-                ));
-
-                if (UI::MenuItem(player.Name) && !player.IsSpectator) {
-                    _playerList.Spectate(player.Login);
-                }
-
-                UI::PopStyleColor();
-
-                if (!player.IsSpectator) {
-                    Tooltip("Spectate " + player.Name);
-                }
-
-                UI::TableNextColumn();
-
-                UI::SetCursorPos(vec2(UI::GetWindowSize().x - (UI::GetScrollMaxY() > 0 ? 40 : 24), UI::GetCursorPos().y-1));
-                UI::PushStyleColor(UI::Col::Button, vec4(0, 0, 0, 0));
-                UI::PushStyleColor(UI::Col::ButtonHovered, vec4(1, 1, 1, 0.01));
-                UI::PushStyleColor(UI::Col::ButtonActive, vec4(1, 1, 1, 0.01));
-                UI::PushStyleVar(UI::StyleVar::FrameRounding, 0);
-
-                if (UI::Button((player.IsFavorited ? Icons::Star : Icons::StarO) + "##"+i, vec2(24, 19))) {
-                    _playerList.ToggleFavorite(player.Login);
-                    if (!_autoUpdate) _playerList.Update();
-                }
-
-                Tooltip("Favorite " + player.Name);
-
-                UI::PopStyleVar();
-                UI::PopStyleColor(3);
+                RenderPlayer(player);
+                RenderFavoriteButton(player, i);
             }
 
             UI::EndTable();
         }
+    }
 
-        UI::EndChild();
+    void RenderPlayer(Player@ player) {
+        vec3 nameTextColor;
+
+        if (Setting_UseTeamColors && IsTeamsMode()) {
+            nameTextColor = vec3(
+                player.Team == 2 ? 1 : 0.3,
+                0.3,
+                player.Team == 1 ? 1 : 0.3);
+        } else {
+            nameTextColor = vec3(1, 1, 1);
+        }
+
+        UI::PushStyleColor(UI::Col::Text, vec4(
+            nameTextColor.x,
+            nameTextColor.y,
+            nameTextColor.z,
+            player.IsSpectator ? 0.1 : 0.5
+        ));
+
+        if (UI::MenuItem(player.Name) && !player.IsSpectator) {
+            _playerList.Spectate(player.Login);
+        }
+
+        UI::PopStyleColor();
+
+        if (!player.IsSpectator) {
+            Tooltip("Spectate " + player.Name);
+        }
+    }
+
+    void RenderFavoriteButton(Player@ player, uint id) {
+        UI::TableNextColumn();
+
+        UI::SetCursorPos(vec2(UI::GetWindowSize().x - (UI::GetScrollMaxY() > 0 ? 40 : 24), UI::GetCursorPos().y-1));
+        UI::PushStyleColor(UI::Col::Button, vec4(0, 0, 0, 0));
+        UI::PushStyleColor(UI::Col::ButtonHovered, vec4(1, 1, 1, 0.01));
+        UI::PushStyleColor(UI::Col::ButtonActive, vec4(1, 1, 1, 0.01));
+        UI::PushStyleVar(UI::StyleVar::FrameRounding, 0);
+
+        if (UI::Button((player.IsFavorited ? Icons::Star : Icons::StarO) + "##"+id, vec2(24, 19))) {
+            _playerList.ToggleFavorite(player.Login);
+            if (!_autoUpdate) _playerList.Update();
+        }
+
+        Tooltip("Favorite " + player.Name);
+
+        UI::PopStyleVar();
+        UI::PopStyleColor(3);
     }
 
     void Tooltip(string text) {

@@ -11,10 +11,13 @@ bool Setting_MinimizeWhenNotHovering = false;
 bool Setting_LockPosition = false;
 
 [Setting name="Ignore Spectators" category=" Players" description="Don't show players that are in spectator mode."]
-bool Setting_IgnoreSpectators = true;
+bool Setting_IgnoreSpectators = false;
 
 [Setting name="Use Team Colors" category=" Players" description="When in teams mode, give players the color of their team."]
 bool Setting_UseTeamColors = true;
+
+[Setting name="Enable Favorites" category=" Players" description="Enable the ability to favorite players and pin them to the top of the list."]
+bool Setting_EnableFavorites = true;
 
 [Setting hidden]
 float Setting_Height = 285;

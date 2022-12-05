@@ -38,7 +38,7 @@ class PlayerListHandler {
 
             bool isSpectator = player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::Watcher 
                             || player.User.SpectatorMode == CGameNetPlayerInfo::ESpectatorMode::LocalWatcher
-                            || (IsKnockoutDaily() && player.SpawnIndex < 0);
+                            || player.SpawnIndex < 0;
 
             bool isFavorited = _favorites.Find(player.User.Login) >= 0;
             
@@ -54,9 +54,11 @@ class PlayerListHandler {
                 return !a.IsSpectator && b.IsSpectator ? true : false;
             });
 
-            _players.Sort(function(a, b) {
-                return !a.IsFavorited && b.IsFavorited || a.IsFavorited == b.IsFavorited ? false : true;
-            });
+            if (Setting_EnableFavorites) {
+                _players.Sort(function(a, b) {
+                    return !a.IsFavorited && b.IsFavorited || a.IsFavorited == b.IsFavorited ? false : true;
+                });
+            }
         }
     }
 
