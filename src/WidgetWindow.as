@@ -116,7 +116,7 @@ class WidgetWindow {
     }
 
     void RenderWindowControls() {
-        _autoUpdate = UI::Checkbox("", _autoUpdate);
+        _autoUpdate = UI::Checkbox("##", _autoUpdate);
 
         Tooltip("Auto-Update");
 
