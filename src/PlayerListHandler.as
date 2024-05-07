@@ -23,10 +23,12 @@ class PlayerListHandler {
     array<Player> _players;
     string _searchPattern;
     array<string> _favorites;
+    int _currentPb;
+    int _currentRank;
+    string _targetLogin;
 
     void Update() {
         CGamePlayground@ playground = GetApp().CurrentPlayground;
-
         _players.RemoveRange(0, _players.Length);
 
         for (uint i = 0; i < playground.Players.Length; i++) {
@@ -88,6 +90,14 @@ class PlayerListHandler {
         return effectivePlayers;
     }
 
+    int GetCurrentPb() {
+        return _currentPb;
+    }
+
+    int GetCurrentRank() {
+        return _currentRank;
+    }
+
     void SetSearchPattern(string&in newPattern) {
         _searchPattern = newPattern;
     }
@@ -101,6 +111,26 @@ class PlayerListHandler {
         }
 
         api.SetSpectateTarget(login);
+        _targetLogin = login;
+
+        if(shouldShowDeepDipInfo()) {
+            startnew(CoroutineFunc(this.getDeepDipInfo));
+        }
+    }
+
+    void getDeepDipInfo() {
+        string Wsid = LoginToWSID(_targetLogin);
+        string dipResponse = SendJSONRequest(Net::HttpMethod::Get, "https://dips-plus-plus.xk.io/leaderboard/" + Wsid); //Get Deep Dip info
+        //If player is not using DIPS++ it will return null as a string
+        if(dipResponse == 'null') {
+            _currentPb = 0;
+            _currentRank = 0;
+            return;
+        }
+
+        Json::Value DeepDipResponse = ResponseToJSON(dipResponse, Json::Type::Object);
+        _currentPb = DeepDipResponse['height'];
+        _currentRank = DeepDipResponse['rank'];
     }
 
     void ToggleFavorite(string&in login) {

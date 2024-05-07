@@ -98,6 +98,11 @@ class WidgetWindow {
         }
 
         UI::End();
+
+        if(shouldShowDeepDipInfo()) {
+            RenderDeepDipInfo();
+        }
+
     }
 
     void RenderSearch() {
@@ -302,6 +307,17 @@ class WidgetWindow {
             UI::Text(text);
             UI::EndTooltip();
         }
+    }
+
+    void RenderDeepDipInfo() {
+        UI::SetNextWindowContentSize(330, 120);
+        UI::Begin("Deep Dip info");
+        UI::NewLine();
+        UI::Text("Height PB:  " + _playerList.GetCurrentPb());
+        UI::NewLine();
+        UI::Text("Rank:  " + _playerList.GetCurrentRank());
+
+        UI::End();
     }
 }
 

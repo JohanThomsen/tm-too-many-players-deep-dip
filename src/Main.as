@@ -7,6 +7,9 @@ bool Setting_OnlyInSpec = false;
 [Setting name="Minimize When Not Hovering" category=" Window" description="Minimize the window when the mouse is not hovering the window."]
 bool Setting_MinimizeWhenNotHovering = false;
 
+[Setting name="Enable Deep Dip" category=" Window" description="Enable the Deep Dip extension, when in a Deep Dip 2 server."]
+bool Setting_EnableDeepDip = false;
+
 [Setting name="Lock Position" category=" Window" description="Disable the ability to move the window and lock it in place."]
 bool Setting_LockPosition = false;
 

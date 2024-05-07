@@ -2,7 +2,4 @@
 name        = "Too Many Players"
 author      = "snixtho"
 category    = "Utilities"
-version     = "2.2"
-
-[script]
-imports = [ "Icons.as" ]
+version     = "2.3"
